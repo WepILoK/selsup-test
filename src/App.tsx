@@ -2,20 +2,6 @@ import React, {useState} from 'react';
 import './App.css';
 
 
-interface Param {
-    id: number
-    name: string
-}
-
-interface ParamValue {
-    paramId: number
-    value: string
-}
-
-interface Model {
-    paramValues: ParamValue[]
-}
-
 export const App = () => {
     const params = [
         {id: 1, name: 'Назначение'},
@@ -37,9 +23,28 @@ export const App = () => {
     );
 }
 
+
+interface Param {
+    id: number
+    name: string
+}
+
+interface ParamValue {
+    paramId: number
+    value: string
+}
+
+interface Model {
+    paramValues: ParamValue[]
+}
+
 interface Props {
     params: Param[]
     model: Model
+}
+
+enum EnumModelParameters {
+    paramValues = 'paramValues',
 }
 
 const ParamEditor: React.FC<Props> = ({params, model}) => {
@@ -48,15 +53,16 @@ const ParamEditor: React.FC<Props> = ({params, model}) => {
         console.log(item)
     }
 
-    const handleSelectedValue = (event: React.ChangeEvent<{ value: string }>): void => {
-        const paramValues = item.paramValues
-        paramValues.push({paramId: paramValues.length + 1, value: event.target.value})
-        setItem(prevState => ({...prevState, paramValues: paramValues}))
+    const handleSelectedValue = (event: React.ChangeEvent<{ value: string }>, type: EnumModelParameters): void => {
+        const newParam = {paramId: item[`${type}`].length + 1, value: event.target.value}
+        setItem(prevState =>
+            ({...prevState, [`${type}`]: item[`${type}`]
+                    .concat(newParam)}))
     }
 
     return (
         <div>
-            <select onChange={(event) => handleSelectedValue(event)}>
+            <select onChange={(event) => handleSelectedValue(event, EnumModelParameters.paramValues)}>
                 {params.map(item =>
                     <option key={item.id} value={item.name}>{item.name}</option>
                 )}
