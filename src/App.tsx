@@ -56,8 +56,8 @@ const ParamEditor: React.FC<Props> = ({params, model}) => {
     const handleSelectedValue = (event: React.ChangeEvent<{ value: string }>, type: EnumModelParameters): void => {
         const newParam = {paramId: item[`${type}`].length + 1, value: event.target.value}
         setItem(prevState =>
-            ({...prevState, [`${type}`]: item[`${type}`]
-                    .concat(newParam)}))
+            ({...prevState,
+                [`${type}`]: item[`${type}`].concat(newParam)}))
     }
 
     return (
