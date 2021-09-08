@@ -4,18 +4,19 @@ import './App.css';
 
 export const App = () => {
     const params = [
-        {id: 1, name: 'Назначение'},
-        {id: 2, name: 'Длина'},
-        {id: 3, name: 'Вес'},
-        {id: 4, name: 'Цена'},
+        {id: 1, name: 'Назначение', type: ParamType.string},
+        {id: 2, name: 'Длина', type: ParamType.number},
+        {id: 3, name: 'Качество', type: ParamType.select},
     ]
 
     const model = {
         paramValues: [
             {paramId: 1, value: 'повседневное'},
-            {paramId: 2, value: 'макси'}
+            {paramId: 2, value: '9'},
+            {paramId: 3, value: 'Среднее'},
         ]
     }
+
     return (
         <div className="App">
             <ParamEditor model={model} params={params}/>
@@ -23,10 +24,16 @@ export const App = () => {
     );
 }
 
+enum ParamType {
+    string = 'string',
+    number = 'number',
+    select = 'select'
+}
 
 interface Param {
     id: number
     name: string
+    type: ParamType
 }
 
 interface ParamValue {
@@ -43,30 +50,47 @@ interface Props {
     model: Model
 }
 
-enum EnumModelParameters {
-    paramValues = 'paramValues',
-}
-
 const ParamEditor: React.FC<Props> = ({params, model}) => {
     const [item, setItem] = useState(model)
     const getModel = () => {
         console.log(item)
     }
 
-    const handleSelectedValue = (event: React.ChangeEvent<{ value: string }>, type: EnumModelParameters): void => {
-        const newParam = {paramId: item[`${type}`].length + 1, value: event.target.value}
+    const changeParamArea = (value: string, id: number) => {
+        const paramValues = item.paramValues
+        paramValues[id] = {paramId: item.paramValues.length, value: value}
         setItem(prevState =>
-            ({...prevState,
-                [`${type}`]: item[`${type}`].concat(newParam)}))
+            ({...prevState, paramValues: paramValues}))
     }
 
     return (
-        <div>
-            <select onChange={(event) => handleSelectedValue(event, EnumModelParameters.paramValues)}>
-                {params.map(item =>
-                    <option key={item.id} value={item.name}>{item.name}</option>
-                )}
-            </select>
+        <div style={{width: "300px"}}>
+            {params.map((item, index) =>
+                <div key={item.id} style={{display: "flex", padding: '2px'}}>
+                    <div style={{paddingRight: "5px", fontWeight: 700, width: '94px'}}>
+                        {item.name}
+                    </div>
+                    {item.type === ParamType.string && (
+                        <input
+                            type='text'
+                            value={model.paramValues[index].value}
+                            onChange={(event) => changeParamArea(event.target.value, index)}/>
+                    )}
+                    {item.type === ParamType.number && (
+                        <input
+                            type='number'
+                            value={model.paramValues[index].value}
+                            onChange={(event) => changeParamArea(event.target.value, index)}/>
+                    )}
+                    {item.type === ParamType.select && (
+                        <select onChange={(event) => changeParamArea(event.target.value, index)}>
+                            {['Высшее', 'Среднее', 'Низкое'].map((item, index) =>
+                                <option key={index} value={item}>{item}</option>
+                            )}
+                        </select>
+                    )}
+                </div>
+            )}
             <button onClick={getModel}>Показать модель</button>
         </div>
     )
